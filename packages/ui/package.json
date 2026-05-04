@@ -1,0 +1,57 @@
+{
+  "name": "@stellar-pay/ui",
+  "version": "0.1.0",
+  "description": "Production-grade React component library for Stellar dApps — wallet connect, transaction flows, asset balances, and enterprise disbursements.",
+  "keywords": [
+    "stellar",
+    "soroban",
+    "sdp",
+    "react",
+    "component-library",
+    "stellar-sdk",
+    "web3",
+    "blockchain",
+    "wallet"
+  ],
+  "author": "stellar-pay-ui contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DevelopersHelpDesk/stellar-pay-ui"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18",
+    "@stellar-friendbot/freighter-api": ">=1.7.0",
+    "@stellar/stellar-sdk": ">=12.0.0"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "^12.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}
