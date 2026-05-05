@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install -g pnpm@8.15.6 && pnpm install --no-frozen-lockfile",
+  "installCommand": "npm install -g pnpm@9.15.0 && pnpm install --no-frozen-lockfile",
   "buildCommand": "pnpm build",
   "framework": "nextjs"
 }
