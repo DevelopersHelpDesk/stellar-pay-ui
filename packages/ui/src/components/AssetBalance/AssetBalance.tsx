@@ -202,13 +202,15 @@ export function AssetBalance({
                     marginBottom: 10,
                   }}
                 >
-                  {[
-                    ["Balance", formatBalance(b.balance)],
-                    b.limit ? ["Trustline Limit", formatBalance(b.limit)] : null,
-                    b.buyingLiabilities ? ["Buying Liabilities", b.buyingLiabilities] : null,
-                    b.sellingLiabilities ? ["Selling Liabilities", b.sellingLiabilities] : null,
-                  ]
-                    .filter(Boolean)
+                  {(
+                    [
+                      ["Balance", formatBalance(b.balance)],
+                      b.limit ? ["Trustline Limit", formatBalance(b.limit)] : null,
+                      b.buyingLiabilities ? ["Buying Liabilities", b.buyingLiabilities] : null,
+                      b.sellingLiabilities ? ["Selling Liabilities", b.sellingLiabilities] : null,
+                    ] as Array<[string, string] | null>
+                  )
+                    .filter((item): item is [string, string] => item !== null)
                     .map(([label, value]) => (
                       <div key={label as string}>
                         <div
