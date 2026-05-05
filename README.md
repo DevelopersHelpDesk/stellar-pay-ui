@@ -29,7 +29,7 @@ yarn add @stellar-pay/ui stellar-sdk
 **Peer dependencies:**
 - `react >= 18`
 - `stellar-sdk >= 12`
-- `@stellar-friendbot/freighter-api >= 1.7` *(only if using Freighter)*
+- `@stellar/freighter-api >= 2.0` *(only if using Freighter)*
 
 ---
 
@@ -242,7 +242,7 @@ Built as a **pnpm + Turborepo monorepo**. The `@stellar-pay/ui` package is frame
 ## Contributing
 
 ```bash
-git clone https://github.com/DevelopersHelpDesk/stellar-pay-ui
+git clone https://github.com/YOUR_ORG/stellar-pay-ui
 cd stellar-pay-ui
 pnpm install
 pnpm dev   # runs the docs site + package in watch mode

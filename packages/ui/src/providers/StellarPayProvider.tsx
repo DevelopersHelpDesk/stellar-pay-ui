@@ -47,43 +47,78 @@ const StellarPayContext = createContext<StellarPayContextValue | null>(null);
 // ─── Wallet adapters ──────────────────────────────────────────────────────────
 
 /**
- * Freighter adapter — uses the @stellar-friendbot/freighter-api browser extension.
- * Dynamically imported so the library doesn't hard-require it.
+ * Freighter adapter — uses @stellar/freighter-api v6.
+ * Dynamically imported so the library doesn't hard-require it for consumers
+ * who use Albedo or xBull instead.
+ *
+ * v6 API changes vs older versions:
+ *   - isConnected()      → returns { isConnected: boolean, error? }
+ *   - requestAccess()    → returns { address: string, error? }
+ *   - getAddress()       → returns { address: string, error? }
+ *   - getNetworkDetails()→ returns { network, networkUrl, networkPassphrase, error? }
+ *   - signTransaction()  → returns { signedTxXdr: string, signerAddress, error? }
  */
 async function connectFreighter(network: StellarNetwork): Promise<string> {
-  // Dynamic import so consumers who don't use Freighter aren't penalised
-  const freighter = await import(
-    /* webpackIgnore: true */ "@stellar-friendbot/freighter-api"
-  ).catch(() => {
+  const freighter = await import("@stellar/freighter-api").catch(() => {
     throw new Error(
-      "Freighter not installed. Visit https://freighter.app to install the extension."
+      "Freighter not installed. Visit https://freighter.app to install the browser extension."
     );
   });
 
-  const connected = await freighter.isConnected();
-  if (!connected) {
-    throw new Error("Freighter extension is not connected.");
+  // v6: isConnected returns an object { isConnected: boolean, error? }
+  const connectedResult = await freighter.isConnected();
+  if (connectedResult.error) {
+    throw new Error(`Freighter error: ${connectedResult.error}`);
+  }
+  if (!connectedResult.isConnected) {
+    throw new Error("Freighter extension is not connected. Open the extension and unlock it.");
   }
 
-  await freighter.requestAccess();
+  // v6: requestAccess returns { address: string, error? }
+  const accessResult = await freighter.requestAccess();
+  if (accessResult.error) {
+    throw new Error(`Freighter access denied: ${accessResult.error}`);
+  }
 
-  const networkDetails = await freighter.getNetworkDetails();
-  if (networkDetails.network !== network) {
+  // v6: getNetworkDetails returns { network, networkUrl, networkPassphrase, error? }
+  const networkResult = await freighter.getNetworkDetails();
+  if (networkResult.error) {
+    throw new Error(`Freighter network error: ${networkResult.error}`);
+  }
+
+  // Normalise Freighter network name to our StellarNetwork type
+  // Freighter returns "TESTNET", "PUBLIC", "FUTURENET" etc.
+  const freighterNet = networkResult.network?.toLowerCase() ?? "";
+  const normalised =
+    freighterNet.includes("test") ? "testnet" :
+    freighterNet.includes("future") ? "futurenet" :
+    "mainnet";
+
+  if (normalised !== network) {
     throw new Error(
-      `Freighter is on ${networkDetails.network}, but the app expects ${network}. Please switch networks in Freighter.`
+      `Freighter is on ${networkResult.network}, but the app expects ${network}. ` +
+      `Please switch networks in the Freighter extension.`
     );
   }
 
-  const publicKey = await freighter.getPublicKey();
-  return publicKey;
+  // v6: use getAddress() for the public key (getPublicKey removed in v3+)
+  const addressResult = await freighter.getAddress();
+  if (addressResult.error) {
+    throw new Error(`Freighter address error: ${addressResult.error}`);
+  }
+
+  return addressResult.address;
 }
 
 async function signWithFreighter(xdr: string, networkPassphrase: string): Promise<string> {
-  const freighter = await import(
-    /* webpackIgnore: true */ "@stellar-friendbot/freighter-api"
-  );
+  const freighter = await import("@stellar/freighter-api");
+
+  // v6: signTransaction returns { signedTxXdr: string, signerAddress: string, error? }
   const result = await freighter.signTransaction(xdr, { networkPassphrase });
-  return result;
+  if (result.error) {
+    throw new Error(`Freighter signing error: ${result.error}`);
+  }
+  return result.signedTxXdr;
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
