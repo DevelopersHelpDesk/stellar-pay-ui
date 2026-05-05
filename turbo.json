@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "task": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
