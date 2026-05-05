@@ -69,8 +69,8 @@ export function EnterprisePayFlow({
   const confirmedCount = recipients.filter((r) => r.status === "confirmed").length;
   const failedCount = recipients.filter((r) => r.status === "failed").length;
 
-  // Display config recipients if not yet started, live recipients once running
-  const displayList: Array<{
+  // Normalise both sources to a single display shape — no union needed
+  type DisplayRow = {
     id: string;
     name?: string;
     destination: string;
@@ -79,10 +79,24 @@ export function EnterprisePayFlow({
     status: DisbursementStatus;
     txHash?: string;
     error?: string;
-  }> = initialized
-    ? recipients
+  };
+
+  const displayList: DisplayRow[] = initialized
+    ? recipients.map((r) => ({
+        id: r.id,
+        name: r.name,
+        destination: r.destination,
+        amount: r.amount,
+        assetCode: r.asset.code,
+        status: r.status,
+        txHash: r.txHash,
+        error: r.error,
+      }))
     : config.recipients.map((r) => ({
-        ...r,
+        id: r.id,
+        name: r.name,
+        destination: r.destination,
+        amount: r.amount,
         assetCode: r.asset.code,
         status: "queued" as DisbursementStatus,
       }));
@@ -185,7 +199,7 @@ export function EnterprisePayFlow({
 
               {/* Amount */}
               <span style={{ fontFamily: "monospace", fontSize: 11, color: "#b8dff0", flexShrink: 0 }}>
-                {"assetCode" in r ? r.assetCode : r.asset.code} {r.amount}
+                {r.assetCode} {r.amount}
               </span>
 
               {/* Status badge */}
